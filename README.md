@@ -1,6 +1,6 @@
-# NoteJs - A Simple Notes App
+# NoteJS - A Simple Notes App
 
-NoteJs is a basic notes application built with React Native and Expo. It allows users to create, edit, delete, and save notes locally on their device.
+NoteJS is a basic notes application built with React Native and Expo. It allows users to create, edit, delete, and save notes locally on their device.
 
 ## Features
 
@@ -21,7 +21,7 @@ NoteJs is a basic notes application built with React Native and Expo. It allows 
 ## Project Structure
 
 ```
-noteJs/
+NoteJS/
 ├── .gitignore
 ├── App.js
 ├── app.json
