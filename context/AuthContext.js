@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
                 const token = await AsyncStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
                 setTimeout(() => {
                     if (isMounted) setIsSignedIn(!!token);
-                }, 1000);
+                }, 1000000);
             } catch (error) {
                 console.error("Error in checkAuthStatus", error);
             } finally {

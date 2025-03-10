@@ -47,6 +47,16 @@ NoteJS/
 
 ```
 
+
+
+## Screenshots
+
+Here are some screenshots of the app:
+
+![Splash Screen](assets/images/apps/SplashScreen.png)
+*Home Screen showing the list of notes.*![Login Screen](assets/images/apps/LoginScreen.png)
+*Login Screen for authentication.*
+
 ## Setup
 
 1.  Install dependencies:
