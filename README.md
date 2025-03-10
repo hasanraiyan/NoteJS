@@ -1,6 +1,6 @@
-# Notekt - A Simple Notes App
+# NoteJs - A Simple Notes App
 
-Notekt is a basic notes application built with React Native and Expo. It allows users to create, edit, delete, and save notes locally on their device.
+NoteJs is a basic notes application built with React Native and Expo. It allows users to create, edit, delete, and save notes locally on their device.
 
 ## Features
 
@@ -21,7 +21,7 @@ Notekt is a basic notes application built with React Native and Expo. It allows 
 ## Project Structure
 
 ```
-notekt/
+noteJs/
 ├── .gitignore
 ├── App.js
 ├── app.json
