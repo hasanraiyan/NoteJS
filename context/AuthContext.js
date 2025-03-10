@@ -6,52 +6,64 @@ import { HARDCODED_USERNAME, HARDCODED_PASSWORD, STORAGE_KEYS } from "../constan
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isSignedIn, setIsSignedIn] = useState(false);
+    const [isSignedIn, setIsSignedIn] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
-  // Check authentication status by retrieving the token from AsyncStorage.
-  const checkAuthStatus = async () => {
-    try {
-      const token = await AsyncStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-      setIsSignedIn(!!token);
-    } catch (error) {
-      console.error("Error in checkAuthStatus", error);
-    }
-  };
+    useEffect(() => {
+        let isMounted = true;
 
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
+        const checkAuthStatus = async () => {
+            try {
+                const token = await AsyncStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+                setTimeout(() => {
+                    if (isMounted) setIsSignedIn(!!token);
+                }, 1000);
+            } catch (error) {
+                console.error("Error in checkAuthStatus", error);
+            } finally {
+                setTimeout(() => {
+                    if (isMounted) setIsLoading(false);
+                }, 1000000);
+            }
+        };
 
-  // Sign in function: validates credentials, stores a token, and updates state.
-  const signIn = async (username, password) => {
-    if (username === HARDCODED_USERNAME && password === HARDCODED_PASSWORD) {
-      try {
-        await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, 'real-auth-token');
-        setIsSignedIn(true);
-      } catch (error) {
-        console.error("Error in signIn", error);
-      }
-    } else {
-      Alert.alert("Login Failed", "Invalid Credential");
-    }
-  };
+        checkAuthStatus();
 
-  // Sign out function: removes the token and updates state.
-  const signOut = async () => {
-    try {
-      await AsyncStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
-      setIsSignedIn(false);
-    } catch (error) {
-      console.error("Error signing out", error);
-    }
-  };
+        return () => {
+            isMounted = false; // Cleanup to prevent memory leaks
+        };
+    }, []);
 
-  return (
-    <AuthContext.Provider value={{ isSignedIn, signIn, signOut }}>
-      {children}
-    </AuthContext.Provider>
-  );
+    // Sign in function
+    const signIn = async (username, password) => {
+        if (username === HARDCODED_USERNAME && password === HARDCODED_PASSWORD) {
+            try {
+                await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, "real-auth-token");
+                setIsSignedIn(true);
+            } catch (error) {
+                console.error("Error in signIn", error);
+                Alert.alert("Login Failed", "An error occurred. Please try again.");
+            }
+        } else {
+            Alert.alert("Login Failed", "Invalid Credentials");
+        }
+    };
+
+    // Sign out function
+    const signOut = async () => {
+        try {
+            await AsyncStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+            setIsSignedIn(false);
+        } catch (error) {
+            console.error("Error signing out", error);
+        }
+    };
+
+    return (
+        <AuthContext.Provider value={{ isSignedIn, isLoading, signIn, signOut }}>
+            {children}
+        </AuthContext.Provider>
+    );
 };
 
-// Correctly use AuthContext here.
 export const useAuth = () => useContext(AuthContext);
