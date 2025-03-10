@@ -53,12 +53,13 @@ NoteJS/
 
 Here are some screenshots of the app:
 
-<img src="assets/images/apps/SplashScreen.png" width="300" />
-*Splash Screen showing the list of notes.*
+<div style="display: flex; justify-content: space-around;">
+  <img src="assets/images/apps/SplashScreen.png" width="300" />
+  <img src="assets/images/apps/LoginScreen.png" width="300" />
+</div>
 
-<img src="assets/images/apps/LoginScreen.png" width="300" />
+*Splash Screen showing the list of notes.*  
 *Login Screen for authentication.*
-
 ## Setup
 
 1.  Install dependencies:
