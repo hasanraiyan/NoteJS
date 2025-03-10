@@ -53,8 +53,10 @@ NoteJS/
 
 Here are some screenshots of the app:
 
-![Splash Screen](assets/images/apps/SplashScreen.png)
-*Home Screen showing the list of notes.*![Login Screen](assets/images/apps/LoginScreen.png)
+<img src="assets/images/apps/SplashScreen.png" width="300" />
+*Splash Screen showing the list of notes.*
+
+<img src="assets/images/apps/LoginScreen.png" width="300" />
 *Login Screen for authentication.*
 
 ## Setup
