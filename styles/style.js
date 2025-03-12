@@ -26,8 +26,8 @@ export const styles = StyleSheet.create({
         height: 80,
     },
     logo: {
-        width: 50,
-        height: 50,
+        width: 70,
+        height: 70,
     },
     welcomeText: {
         fontSize: 32,

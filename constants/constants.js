@@ -22,10 +22,11 @@ export const STORAGE_KEYS = {
     THEME: 'theme',
     USER_NOTES: 'user_notes',
     AUTH_TOKEN: 'auth_token',
+    
 };
 
 export const APP_INFO = {
-    NAME: 'NotyJs',
+    NAME: 'NoteJs',
     VERSION: 'v0.0.1',
     DEVELOPER: 'Raiyan Hasan',
     COPYRIGHT_YEAR: new Date().getFullYear(),

@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
                 const token = await AsyncStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
                 setTimeout(() => {
                     if (isMounted) setIsSignedIn(!!token);
-                }, 1000000);
+                }, 1000); // Reduced timeout for faster testing, revert to 1000000 for production if needed
             } catch (error) {
                 console.error("Error in checkAuthStatus", error);
             } finally {
@@ -30,7 +30,7 @@ export const AuthProvider = ({ children }) => {
         checkAuthStatus();
 
         return () => {
-            isMounted = false; // Cleanup to prevent memory leaks
+            isMounted = false;
         };
     }, []);
 
@@ -59,8 +59,57 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const signUp = async (username, password) => {
+        if (!username || !password) {
+            Alert.alert("Sign Up Failed", "Please enter both username and password.");
+            return;
+        }
+
+        try {
+            // Simulate a successful sign-up by storing a temporary token.
+            await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, "temp-signup-token");
+            setIsSignedIn(true);
+            Alert.alert("Sign Up Successful", "You have successfully signed up!");
+        } catch (error) {
+            console.error("Error in signUp", error);
+            Alert.alert("Sign Up Failed", "An error occurred during sign up. Please try again.");
+        }
+    }
+
+    // Forgot Password function (Simulated)
+    const forgotPassword = async (email) => {
+        if (!email) {
+            Alert.alert("Reset Password Failed", "Please enter your email address.");
+            return;
+        }
+
+        // For demonstration purposes, we'll just simulate sending an email.
+        // In a real application, you would integrate with an email service and backend.
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                // Simulate success (you might want to check if the email exists in a real scenario)
+                if (email.includes('@')) { // Basic email format check for simulation
+                    Alert.alert(
+                        "Password Reset Email Sent",
+                        `A password reset link has been sent to ${email}. Please check your inbox.`,
+                        [{ text: "OK" }]
+                    );
+                    resolve();
+                } else {
+                    Alert.alert(
+                        "Reset Password Failed",
+                        "Invalid email address. Please enter a valid email.",
+                        [{ text: "OK" }]
+                    );
+                    reject(new Error("Invalid email address")); // Reject with an error on "simulated" failure
+                }
+            }, 1500); // Simulate network delay
+        });
+    };
+
+
     return (
-        <AuthContext.Provider value={{ isSignedIn, isLoading, signIn, signOut }}>
+        <AuthContext.Provider value={{ isSignedIn, isLoading, signIn, signOut, signUp, forgotPassword }}>
             {children}
         </AuthContext.Provider>
     );

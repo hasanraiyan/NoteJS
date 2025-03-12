@@ -56,6 +56,8 @@ Here are some screenshots of the app:
 <div style="display: flex; justify-content: space-around;">
   <img src="assets/images/apps/SplashScreen.png" width="300" />
   <img src="assets/images/apps/LoginScreen.png" width="300" />
+  <img src="assets/images/apps/SignupScreen.png" width="300" />
+  <img src="assets/images/apps/ForgetPasswordScreen.png" width="300" />
 </div>
 
 *Splash Screen showing the list of notes.*  

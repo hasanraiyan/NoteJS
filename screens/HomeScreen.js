@@ -7,7 +7,7 @@ const HomeScreen = () => {
     const { signOut } = useAuth()
     const { theme, isDarkMode } = useTheme()
 
-    signOut()
+    // signOut()
     return (
         <View style={styles.container}>
             <StatusBar
