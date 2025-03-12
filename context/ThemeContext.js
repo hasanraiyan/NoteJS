@@ -80,9 +80,6 @@ export const ThemeProvider = ({ children }) => {
             shadowColor: '#000000',
             tertiaryTextColor: '#9E9E9E',
             headerBackground: '#121212',
-
-  
-          
         }
         : {
             primary: '#7885FF',
