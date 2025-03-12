@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   SafeAreaView,
   View,
@@ -17,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
 import { APP_INFO } from '../constants/constants';
+import { TAGS } from '../constants/constants';
 import {
   initDB,
   getAllNotes,
@@ -24,14 +25,6 @@ import {
   deleteNote,
   updateNote
 } from '../database/database';
-
-const TAGS = [
-  { id: 'all', name: 'All', icon: 'apps-outline', color: '#7885FF' },
-  { id: 'personal', name: 'Personal', icon: 'person-outline', color: '#FF6B6B' },
-  { id: 'work', name: 'Work', icon: 'briefcase-outline', color: '#4D96FF' },
-  { id: 'ideas', name: 'Ideas', icon: 'bulb-outline', color: '#FFD166' },
-  { id: 'tasks', name: 'Tasks', icon: 'checkbox-outline', color: '#06D6A0' }
-];
 
 const SORT_OPTIONS = [
   { id: 'newest', name: 'Newest First' },
@@ -51,7 +44,10 @@ function getTagColor(tagId) {
 
 function formatDate(dateString) {
   const date = new Date(dateString);
-  if (isNaN(date.getTime())) return "Invalid Date";
+  if (isNaN(date.getTime())) {
+    console.warn('Invalid date:', dateString);
+    return "Invalid Date";
+  }
   const now = new Date();
   if (date.toDateString() === now.toDateString()) {
     return `Today, ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
@@ -67,6 +63,7 @@ function formatDate(dateString) {
   return date.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
+// These components could be moved to separate files for better modularity.
 const NoteItem = ({ item, onPress, onLongPress, theme }) => {
   const tagColor = getTagColor(item.tag);
   return (
@@ -99,8 +96,8 @@ const NoteItem = ({ item, onPress, onLongPress, theme }) => {
           {formatDate(item.updatedAt)}
         </Text>
         {item.tag && item.tag !== 'all' && (
-          <View style={[styles.tagBadge, { backgroundColor: tagColor + '20' }]}>
-            <Text style={[styles.tagText, { color: tagColor }]}>
+          <View style={[styles.tagBadge, { backgroundColor: getTagColor(item.tag) + '20' }]}>
+            <Text style={[styles.tagText, { color: getTagColor(item.tag) }]}>
               {TAGS.find(t => t.id === item.tag)?.name || item.tag}
             </Text>
           </View>
@@ -158,10 +155,37 @@ const EmptyState = ({ theme, isDarkMode, searchTerm, selectedTag, onAddNote }) =
   </View>
 );
 
+const ScrollableTagFilter = ({ tags, selectedTag, onSelectTag, theme }) => {
+  return (
+    <FlatList
+      data={tags}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      keyExtractor={(item) => item.id}
+      contentContainerStyle={styles.tagListContent}
+      renderItem={({ item }) => (
+        <TouchableOpacity
+          style={[
+            styles.tagItem,
+            selectedTag === item.id
+              ? { backgroundColor: theme.primary }
+              : { backgroundColor: theme.secondaryBackground }
+          ]}
+          onPress={() => onSelectTag(item.id)}
+        >
+          <Ionicons name={item.icon} size={16} color={selectedTag === item.id ? 'white' : theme.textColor} style={styles.tagIcon} />
+          <Text style={[styles.tagName, { color: selectedTag === item.id ? 'white' : theme.textColor }]}>{item.name}</Text>
+        </TouchableOpacity>
+      )}
+    />
+  );
+};
+
+const ITEM_HEIGHT = 100; // Approximate fixed height for each note item
+
 const HomeScreen = ({ navigation }) => {
   const { theme, isDarkMode } = useTheme();
   const [notes, setNotes] = useState([]);
-  const [filteredNotes, setFilteredNotes] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearchVisible, setIsSearchVisible] = useState(false);
   const [selectedTag, setSelectedTag] = useState('all');
@@ -175,7 +199,8 @@ const HomeScreen = ({ navigation }) => {
     const initializeDB = async () => {
       try {
         await initDB();
-        await loadNotes();
+        const allNotes = await getAllNotes();
+        setNotes(allNotes);
       } catch (error) {
         console.error('Error initializing database:', error);
       }
@@ -186,22 +211,19 @@ const HomeScreen = ({ navigation }) => {
   // Refresh notes when screen is focused
   useFocusEffect(
     useCallback(() => {
-      loadNotes();
+      (async () => {
+        try {
+          const allNotes = await getAllNotes();
+          setNotes(allNotes);
+        } catch (error) {
+          console.error('Error refreshing notes:', error);
+        }
+      })();
     }, [])
   );
 
-  // Load notes from persistent storage
-  const loadNotes = async () => {
-    try {
-      const allNotes = await getAllNotes();
-      setNotes(allNotes);
-    } catch (error) {
-      console.error('Error loading notes:', error);
-    }
-  };
-
-  // Filter and sort notes based on tag, search, and sort options
-  useEffect(() => {
+  // Memoize filtering & sorting to improve performance
+  const filteredNotes = useMemo(() => {
     let result = [...notes];
     if (selectedTag !== 'all') {
       result = result.filter(note => note.tag === selectedTag);
@@ -214,15 +236,10 @@ const HomeScreen = ({ navigation }) => {
           note.content.toLowerCase().includes(term)
       );
     }
-    result = sortNotes(result, sortOption);
-    setFilteredNotes(result);
-  }, [notes, searchTerm, selectedTag, sortOption]);
-
-  const sortNotes = (notesToSort, option) => {
-    const pinnedNotes = notesToSort.filter(note => note.isPinned);
-    const otherNotes = notesToSort.filter(note => !note.isPinned);
+    const pinnedNotes = result.filter(note => note.isPinned);
+    const otherNotes = result.filter(note => !note.isPinned);
     const sortFunction = (a, b) => {
-      switch (option) {
+      switch (sortOption) {
         case 'newest':
           return new Date(b.updatedAt) - new Date(a.updatedAt);
         case 'oldest':
@@ -233,11 +250,15 @@ const HomeScreen = ({ navigation }) => {
           return 0;
       }
     };
-    return [
-      ...pinnedNotes.sort(sortFunction),
-      ...otherNotes.sort(sortFunction)
-    ];
-  };
+    return [...pinnedNotes.sort(sortFunction), ...otherNotes.sort(sortFunction)];
+  }, [notes, searchTerm, selectedTag, sortOption]);
+
+  // Provide a getItemLayout function to optimize FlatList rendering
+  const getItemLayout = useCallback((data, index) => ({
+    length: ITEM_HEIGHT,
+    offset: ITEM_HEIGHT * index,
+    index,
+  }), []);
 
   const toggleSearch = () => {
     if (isSearchVisible) {
@@ -265,21 +286,21 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate('NoteDetail', { id: note.id });
   };
 
-  const handleAddNote = async () => {
+  const handleAddNote = () => {
     try {
-      // Create a new note with default values
-      const newNote = await addNote('Untitled', '', 'personal');
-      await loadNotes();
+      const newNote = addNote('Untitled', '', 'personal');
+      // Optimistically update state without reloading all notes
+      setNotes(prevNotes => [newNote, ...prevNotes]);
       navigation.navigate('NoteDetail', { id: newNote.id });
     } catch (error) {
       console.error('Error adding note:', error);
     }
   };
 
-  const togglePinNoteHandler = async (note) => {
+  const togglePinNoteHandler = (note) => {
     try {
-      await updateNote(note.id, { isPinned: !note.isPinned });
-      loadNotes();
+      const updatedNote = updateNote(note.id, { isPinned: !note.isPinned });
+      setNotes(prevNotes => prevNotes.map(n => n.id === note.id ? updatedNote : n));
     } catch (error) {
       console.error('Error toggling pin:', error);
     }
@@ -315,7 +336,7 @@ const HomeScreen = ({ navigation }) => {
           onPress: async () => {
             try {
               await deleteNote(note.id);
-              loadNotes();
+              setNotes(prevNotes => prevNotes.filter(n => n.id !== note.id));
             } catch (error) {
               console.error('Error deleting note:', error);
             }
@@ -401,6 +422,7 @@ const HomeScreen = ({ navigation }) => {
           keyExtractor={(item) => item.id.toString()}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
+          getItemLayout={getItemLayout}
         />
       ) : (
         <View style={styles.emptyStateAbsoluteContainer}>
@@ -435,32 +457,6 @@ const HomeScreen = ({ navigation }) => {
         </TouchableOpacity>
       </Modal>
     </SafeAreaView>
-  );
-};
-
-const ScrollableTagFilter = ({ tags, selectedTag, onSelectTag, theme }) => {
-  return (
-    <FlatList
-      data={tags}
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      keyExtractor={(item) => item.id}
-      contentContainerStyle={styles.tagListContent}
-      renderItem={({ item }) => (
-        <TouchableOpacity
-          style={[
-            styles.tagItem,
-            selectedTag === item.id
-              ? { backgroundColor: theme.primary }
-              : { backgroundColor: theme.secondaryBackground }
-          ]}
-          onPress={() => onSelectTag(item.id)}
-        >
-          <Ionicons name={item.icon} size={16} color={selectedTag === item.id ? 'white' : theme.textColor} style={styles.tagIcon} />
-          <Text style={[styles.tagName, { color: selectedTag === item.id ? 'white' : theme.textColor }]}>{item.name}</Text>
-        </TouchableOpacity>
-      )}
-    />
   );
 };
 

@@ -16,6 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { APP_INFO } from '../constants/constants';
+import { clearAllNotes as clearDB } from '../database/database';
 
 
 const SettingItem = ({ icon, title, subtitle, onPress, value, isSwitch, theme }) => (
@@ -79,7 +80,7 @@ const SettingsScreen = ({ navigation }) => {
   useEffect(() => {
     loadSettings();
   }, [loadSettings]);
-
+  
   const toggleNotifications = async () => {
     const newValue = !notificationsEnabled;
     setNotificationsEnabled(newValue);
@@ -129,7 +130,7 @@ const SettingsScreen = ({ navigation }) => {
           text: 'Clear',
           onPress: async () => {
             try {
-            //   await clearDB();
+              await clearDB();
               Alert.alert('Success', 'All notes have been cleared from the database.');
             } catch (error) {
               console.error('Failed to clear notes', error);
@@ -199,7 +200,7 @@ const SettingsScreen = ({ navigation }) => {
             theme={theme}
           />
         </SettingSection>
-
+{/* 
         <SettingSection title="Account" theme={theme}>
           <SettingItem
             icon="person-outline"
@@ -215,7 +216,7 @@ const SettingsScreen = ({ navigation }) => {
             onPress={handleSignOut}
             theme={theme}
           />
-        </SettingSection>
+        </SettingSection> */}
 
         <SettingSection title="Data" theme={theme}>
           <SettingItem
@@ -253,7 +254,7 @@ const SettingsScreen = ({ navigation }) => {
             icon="help-circle-outline"
             title="Help & Support"
             subtitle="Get assistance or report issues"
-            onPress={() => Alert.alert('Support', 'For support, please join our Slack channel or email raiyanhasan2006@gmail.com')}
+            onPress={() => Alert.alert('Support', 'For support, please email raiyanhasan2006@gmail.com')}
             theme={theme}
           />
         </SettingSection>

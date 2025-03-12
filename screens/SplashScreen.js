@@ -8,12 +8,12 @@ import { styles } from '../styles/style';
 const SplashScreen = ({ navigation }) => {
     const { isSignedIn, isLoading } = useAuth();
     const { theme } = useTheme()
-    useEffect(() => {
-        // Once loading is done, navigate based on auth status
-        if (!isLoading) {
-            navigation.replace(isSignedIn ? 'Home' : 'Login');
-        }
-    }, [isLoading, isSignedIn, navigation]);
+    // useEffect(() => {
+    //     // Once loading is done, navigate based on auth status
+    //     if (!isLoading) {
+    //         navigation.replace(isSignedIn ? 'Home' : 'Login');
+    //     }
+    // }, [isLoading, isSignedIn, navigation]);
 
     return (
         <View style={[styles.container, { backgroundColor: theme.primary }]}>

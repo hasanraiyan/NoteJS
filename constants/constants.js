@@ -41,3 +41,11 @@ export const DEFAULT_SETTINGS = {
 
 export const HARDCODED_USERNAME = 'user';
 export const HARDCODED_PASSWORD = 'password';
+
+export const TAGS = [
+    { id: 'personal', name: 'Personal', icon: 'person', color: '#8A2BE2' },
+    { id: 'work', name: 'briefcase', icon: 'briefcase', color: '#1E90FF' },
+    { id: 'ideas', name: 'Ideas', icon: 'bulb', color: '#32CD32' },
+    { id: 'tasks', name: 'Tasks', icon: 'checkbox', color: '#FF8C00' },
+    { id: 'important', name: 'Important', icon: 'star', color: '#FF4500' }
+];

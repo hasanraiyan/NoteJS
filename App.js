@@ -13,6 +13,7 @@ import SettingsScreen from './screens/SettingsScreen'
 import AboutScreen from "./screens/AboutScreen";
 import { initDB } from "./database/database";
 import AccountScreen from "./screens/AccountScreen";
+import NotesScreen from "./screens/NotesScreen";
 
 const Stack = createNativeStackNavigator();
 initDB()
@@ -37,7 +38,7 @@ const AppContent = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        {isSignedIn == false ? (
+        {/* {isSignedIn == false ? (
           // No token found, user isn't signed in
           <>
             <Stack.Screen
@@ -101,8 +102,62 @@ const AppContent = () => {
                 }
               }
             />
+            <Stack.Screen
+              name="NoteDetail"
+              component={NotesScreen}
+              options={
+                {
+                  headerShown: false
+                }
+              }
+            />
           </>
-        )}
+        )} */}
+        <>
+            <Stack.Screen
+              name="Home"
+              component={HomeScreen}
+              options={{
+                headerShown: false
+              }}
+            />
+            <Stack.Screen
+              name="Settings"
+              component={SettingsScreen}
+              options={
+                {
+                  headerShown: false
+                }
+              }
+            />
+            <Stack.Screen
+              name="About"
+              component={AboutScreen}
+              options={
+                {
+                  headerShown: false
+                }
+              }
+            />
+            <Stack.Screen
+              name="Account"
+              component={AccountScreen}
+              options={
+                {
+                  headerShown: false
+                }
+              }
+            />
+            <Stack.Screen
+              name="NoteDetail"
+              component={NotesScreen}
+              options={
+                {
+                  headerShown: false
+                }
+              }
+            />
+          </>
       </Stack.Navigator>
     </NavigationContainer>
   );
