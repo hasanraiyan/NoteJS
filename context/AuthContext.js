@@ -74,6 +74,7 @@ export const AuthProvider = ({ children }) => {
             console.error("Error in signUp", error);
             Alert.alert("Sign Up Failed", "An error occurred during sign up. Please try again.");
         }
+
     }
 
     // Forgot Password function (Simulated)

@@ -9,8 +9,13 @@ import HomeScreen from "./screens/HomeScreen";
 import SplashScreen from "./screens/SplashScreen";
 import SignupScreen from "./screens/SignupScreen";
 import ForgotPasswordScreen from "./screens/ForgotPasswordScreen"
-const Stack = createNativeStackNavigator();
+import SettingsScreen from './screens/SettingsScreen'
+import AboutScreen from "./screens/AboutScreen";
+import { initDB } from "./database/database";
+import AccountScreen from "./screens/AccountScreen";
 
+const Stack = createNativeStackNavigator();
+initDB()
 export default function App() {
   return (
     <ThemeProvider>
@@ -61,13 +66,42 @@ const AppContent = () => {
 
         ) : (
           // User is signed in
-          <Stack.Screen
-            name="Home"
-            component={HomeScreen}
-            options={{
-              headerShown: false
-            }}
-          />
+          <>
+            <Stack.Screen
+              name="Home"
+              component={HomeScreen}
+              options={{
+                headerShown: false
+              }}
+            />
+            <Stack.Screen
+              name="Settings"
+              component={SettingsScreen}
+              options={
+                {
+                  headerShown: false
+                }
+              }
+            />
+            <Stack.Screen
+              name="About"
+              component={AboutScreen}
+              options={
+                {
+                  headerShown: false
+                }
+              }
+            />
+            <Stack.Screen
+              name="Account"
+              component={AccountScreen}
+              options={
+                {
+                  headerShown: false
+                }
+              }
+            />
+          </>
         )}
       </Stack.Navigator>
     </NavigationContainer>

@@ -76,10 +76,11 @@ export const ThemeProvider = ({ children }) => {
             inactiveColor: '#555555',
             inputBackground: '#252525',
             cardShadow: 'rgba(0, 0, 0, 0.4)',
-            headerBackground: darkMode.background,
             borderColor: '#303030',
             shadowColor: '#000000',
             tertiaryTextColor: '#9E9E9E',
+            headerBackground: '#121212',
+
   
           
         }

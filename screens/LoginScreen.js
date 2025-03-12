@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,13 +10,60 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Dimensions
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
-const { width } = Dimensions.get('window');
+// Memoized InputField Component
+const InputField = React.memo(({
+  icon,
+  placeholder,
+  value,
+  onChangeText,
+  secureTextEntry = false,
+  toggleVisibility = null,
+  isVisible = false,
+  error = null,
+  theme,
+}) => (
+  <View style={styles.inputWrapper}>
+    <View
+      style={[
+        styles.inputContainer,
+        { borderColor: error ? theme.error : theme.borderColor },
+      ]}
+    >
+      <Ionicons
+        name={icon}
+        size={20}
+        color={theme.secondaryTextColor}
+        style={styles.inputIcon}
+      />
+      <TextInput
+        style={[styles.input, { color: theme.textColor }]}
+        placeholder={placeholder}
+        placeholderTextColor={theme.secondaryTextColor}
+        value={value}
+        onChangeText={onChangeText}
+        secureTextEntry={secureTextEntry && !isVisible}
+        autoCapitalize={placeholder.includes('Username') ? 'none' : 'sentences'}
+      />
+      {toggleVisibility && (
+        <TouchableOpacity onPress={toggleVisibility}>
+          <Ionicons
+            name={isVisible ? 'eye-off' : 'eye'}
+            size={20}
+            color={theme.secondaryTextColor}
+          />
+        </TouchableOpacity>
+      )}
+    </View>
+    {error && (
+      <Text style={[styles.errorText, { color: theme.error }]}>{error}</Text>
+    )}
+  </View>
+));
 
 const LoginScreen = ({ navigation }) => {
   const { signIn } = useAuth();
@@ -27,85 +74,55 @@ const LoginScreen = ({ navigation }) => {
   const [errors, setErrors] = useState({});
 
   const validateForm = () => {
-    let isValid = true;
     const newErrors = {};
-
     if (!username.trim()) {
       newErrors.username = 'Username is required';
-      isValid = false;
     }
-
     if (!password.trim()) {
       newErrors.password = 'Password is required';
-      isValid = false;
     }
-
     setErrors(newErrors);
-    return isValid;
+    return Object.keys(newErrors).length === 0;
   };
 
-  const handleLogin = () => {
+  const handleLogin = useCallback(() => {
     if (validateForm()) {
       signIn(username, password);
     }
-  };
+  }, [username, password, signIn]);
 
-  const InputField = ({
-    icon,
-    placeholder,
-    value,
-    onChangeText,
-    secureTextEntry = false,
-    toggleVisibility = null,
-    isVisible = false,
-    error = null
-  }) => (
-    <View style={styles.inputWrapper}>
-      <View style={[
-        styles.inputContainer,
-        { borderColor: error ? theme.error : theme.borderColor }
-      ]}>
-        <Ionicons name={icon} size={20} color={theme.secondaryTextColor} style={styles.inputIcon} />
-        <TextInput
-          style={[styles.input, { color: theme.textColor }]}
-          placeholder={placeholder}
-          placeholderTextColor={theme.secondaryTextColor}
-          value={value}
-          onChangeText={onChangeText}
-          secureTextEntry={secureTextEntry && !isVisible}
-          autoCapitalize={placeholder.includes('Username') ? 'none' : 'sentences'}
-        />
-        {toggleVisibility && (
-          <TouchableOpacity onPress={toggleVisibility}>
-            <Ionicons
-              name={isVisible ? 'eye-off' : 'eye'}
-              size={20}
-              color={theme.secondaryTextColor}
-            />
-          </TouchableOpacity>
-        )}
-      </View>
-      {error && <Text style={[styles.errorText, { color: theme.error }]}>{error}</Text>}
-    </View>
-  );
+  // Memoize the toggle function to avoid recreating it on every render
+  const togglePasswordVisibility = useCallback(() => {
+    setPasswordVisible(prev => !prev);
+  }, []);
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={[styles.container, { backgroundColor: theme.background }]}
     >
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={theme.background} />
+      <StatusBar
+        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+        backgroundColor={theme.background}
+      />
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {/* Header Section */}
         <View style={styles.headerContainer}>
           <View style={[styles.logoContainer, { backgroundColor: theme.primary }]}>
-            <Image source={require('../assets/images/icon.png')} resizeMode="contain" style={styles.logo} />
+            <Image
+              source={require('../assets/images/icon.png')}
+              resizeMode="contain"
+              style={styles.logo}
+            />
           </View>
-          <Text style={[styles.headerText, { color: theme.textColor }]}>Welcome Back</Text>
+          <Text style={[styles.headerText, { color: theme.textColor }]}>
+            Welcome Back
+          </Text>
           <Text style={[styles.subHeaderText, { color: theme.secondaryTextColor }]}>
             Please sign in to continue
           </Text>
@@ -119,6 +136,7 @@ const LoginScreen = ({ navigation }) => {
             value={username}
             onChangeText={setUsername}
             error={errors.username}
+            theme={theme}
           />
 
           <InputField
@@ -128,13 +146,14 @@ const LoginScreen = ({ navigation }) => {
             onChangeText={setPassword}
             secureTextEntry={true}
             isVisible={passwordVisible}
-            toggleVisibility={() => setPasswordVisible(!passwordVisible)}
+            toggleVisibility={togglePasswordVisibility}
             error={errors.password}
+            theme={theme}
           />
 
           <TouchableOpacity
             style={styles.forgotPasswordContainer}
-            onPress={() => navigation.navigate('ForgotPassword')} // Add navigation here
+            onPress={() => navigation.navigate('ForgotPassword')}
           >
             <Text style={[styles.forgotPasswordText, { color: theme.primary }]}>
               Forgot Password?
@@ -157,7 +176,10 @@ const LoginScreen = ({ navigation }) => {
               Don't have an account?
             </Text>
             <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-              <Text style={[styles.signupLink, { color: theme.primary }]}> Sign Up</Text>
+              <Text style={[styles.signupLink, { color: theme.primary }]}>
+                {' '}
+                Sign Up
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -166,7 +188,9 @@ const LoginScreen = ({ navigation }) => {
         <View style={styles.socialLoginContainer}>
           <View style={styles.dividerContainer}>
             <View style={[styles.divider, { backgroundColor: theme.borderColor }]} />
-            <Text style={[styles.dividerText, { color: theme.secondaryTextColor }]}>Or sign in with</Text>
+            <Text style={[styles.dividerText, { color: theme.secondaryTextColor }]}>
+              Or sign in with
+            </Text>
             <View style={[styles.divider, { backgroundColor: theme.borderColor }]} />
           </View>
 
@@ -182,7 +206,11 @@ const LoginScreen = ({ navigation }) => {
               style={[styles.socialButton, { borderColor: theme.borderColor }]}
               activeOpacity={0.7}
             >
-              <Ionicons name="logo-apple" size={20} color={isDarkMode ? "#FFFFFF" : "#000000"} />
+              <Ionicons
+                name="logo-apple"
+                size={20}
+                color={isDarkMode ? '#FFFFFF' : '#000000'}
+              />
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -281,11 +309,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.5,
   },
   loginText: {
     fontSize: 18,
@@ -332,7 +355,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  }
+  },
 });
 
 export default LoginScreen;

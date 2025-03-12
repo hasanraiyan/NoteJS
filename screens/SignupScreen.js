@@ -1,22 +1,57 @@
-import React, { useState } from 'react';
-import { 
-  View, 
-  TextInput, 
-  TouchableOpacity, 
-  Image, 
-  Text, 
-  StatusBar, 
+import React, { useState, useCallback } from 'react';
+import {
+  View,
+  TextInput,
+  TouchableOpacity,
+  Image,
+  Text,
+  StatusBar,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Dimensions
+  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
 
 const { width } = Dimensions.get('window');
+
+// Memoized InputField Component
+const InputField = React.memo(({
+  icon,
+  placeholder,
+  value,
+  onChangeText,
+  secureTextEntry = false,
+  toggleVisibility = null,
+  isVisible = false,
+  error = null,
+  theme,
+}) => (
+  <View style={styles.inputWrapper}>
+    <View style={[styles.inputContainer, { borderColor: error ? theme.error : theme.borderColor }]}>
+      <Ionicons name={icon} size={20} color={theme.secondaryTextColor} style={styles.inputIcon} />
+      <TextInput
+        style={[styles.input, { color: theme.textColor }]}
+        placeholder={placeholder}
+        placeholderTextColor={theme.secondaryTextColor}
+        value={value}
+        onChangeText={onChangeText}
+        secureTextEntry={secureTextEntry && !isVisible}
+        autoCapitalize={placeholder.includes('Email') ? 'none' : 'sentences'}
+        keyboardType={placeholder.includes('Email') ? 'email-address' : 'default'}
+      />
+      {toggleVisibility && (
+        <TouchableOpacity onPress={toggleVisibility}>
+          <Ionicons name={isVisible ? 'eye-off' : 'eye'} size={20} color={theme.secondaryTextColor} />
+        </TouchableOpacity>
+      )}
+    </View>
+    {error && <Text style={[styles.errorText, { color: theme.error }]}>{error}</Text>}
+  </View>
+));
 
 const SignupScreen = ({ navigation }) => {
   const { signUp } = useAuth();
@@ -30,8 +65,8 @@ const SignupScreen = ({ navigation }) => {
   const [errors, setErrors] = useState({});
 
   const validateForm = () => {
-    let isValid = true;
     const newErrors = {};
+    let isValid = true;
 
     if (!username.trim()) {
       newErrors.username = 'Username is required';
@@ -63,63 +98,29 @@ const SignupScreen = ({ navigation }) => {
     return isValid;
   };
 
-  const handleSignup = () => {
+  const handleSignup = useCallback(() => {
     if (validateForm()) {
       signUp(username, email, password);
     }
-  };
+  }, [username, email, password, confirmPassword, signUp]);
 
-  const InputField = ({ 
-    icon, 
-    placeholder, 
-    value, 
-    onChangeText, 
-    secureTextEntry = false,
-    toggleVisibility = null,
-    isVisible = false,
-    error = null
-  }) => (
-    <View style={styles.inputWrapper}>
-      <View style={[
-        styles.inputContainer, 
-        { borderColor: error ? theme.error : theme.borderColor }
-      ]}>
-        <Ionicons name={icon} size={20} color={theme.secondaryTextColor} style={styles.inputIcon} />
-        <TextInput
-          style={[styles.input, { color: theme.textColor }]}
-          placeholder={placeholder}
-          placeholderTextColor={theme.secondaryTextColor}
-          value={value}
-          onChangeText={onChangeText}
-          secureTextEntry={secureTextEntry && !isVisible}
-          autoCapitalize={placeholder.includes('Email') ? 'none' : 'sentences'}
-          keyboardType={placeholder.includes('Email') ? 'email-address' : 'default'}
-        />
-        {toggleVisibility && (
-          <TouchableOpacity onPress={toggleVisibility}>
-            <Ionicons 
-              name={isVisible ? 'eye-off' : 'eye'} 
-              size={20} 
-              color={theme.secondaryTextColor} 
-            />
-          </TouchableOpacity>
-        )}
-      </View>
-      {error && <Text style={[styles.errorText, { color: theme.error }]}>{error}</Text>}
-    </View>
-  );
+  // Memoize toggle functions to avoid recreating on every render
+  const togglePasswordVisibility = useCallback(() => {
+    setPasswordVisible((prev) => !prev);
+  }, []);
+
+  const toggleConfirmPasswordVisibility = useCallback(() => {
+    setConfirmPasswordVisible((prev) => !prev);
+  }, []);
 
   return (
-    <KeyboardAvoidingView 
+    <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={[styles.container, { backgroundColor: theme.background }]}
     >
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={theme.background} />
-      
-      <ScrollView 
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
+
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Header Section */}
         <View style={styles.headerContainer}>
           <View style={[styles.logoContainer, { backgroundColor: theme.primary }]}>
@@ -139,14 +140,16 @@ const SignupScreen = ({ navigation }) => {
             value={username}
             onChangeText={setUsername}
             error={errors.username}
+            theme={theme}
           />
-          
+
           <InputField
             icon="mail-outline"
             placeholder="Email Address"
             value={email}
             onChangeText={setEmail}
             error={errors.email}
+            theme={theme}
           />
 
           <InputField
@@ -156,8 +159,9 @@ const SignupScreen = ({ navigation }) => {
             onChangeText={setPassword}
             secureTextEntry={true}
             isVisible={passwordVisible}
-            toggleVisibility={() => setPasswordVisible(!passwordVisible)}
+            toggleVisibility={togglePasswordVisibility}
             error={errors.password}
+            theme={theme}
           />
 
           <InputField
@@ -167,21 +171,22 @@ const SignupScreen = ({ navigation }) => {
             onChangeText={setConfirmPassword}
             secureTextEntry={true}
             isVisible={confirmPasswordVisible}
-            toggleVisibility={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
+            toggleVisibility={toggleConfirmPasswordVisibility}
             error={errors.confirmPassword}
+            theme={theme}
           />
         </View>
 
         {/* Button Section */}
         <View style={styles.buttonContainer}>
-          <TouchableOpacity 
-            style={[styles.signupButton, { backgroundColor: theme.primary }]} 
+          <TouchableOpacity
+            style={[styles.signupButton, { backgroundColor: theme.primary }]}
             onPress={handleSignup}
             activeOpacity={0.8}
           >
             <Text style={styles.signupText}>Sign Up</Text>
           </TouchableOpacity>
-          
+
           <View style={styles.loginContainer}>
             <Text style={[styles.loginText, { color: theme.secondaryTextColor }]}>
               Already have an account?
@@ -196,8 +201,7 @@ const SignupScreen = ({ navigation }) => {
         <View style={styles.termsContainer}>
           <Text style={[styles.termsText, { color: theme.secondaryTextColor }]}>
             By signing up, you agree to our{' '}
-            <Text style={[styles.termsLink, { color: theme.primary }]}>Terms of Service</Text>
-            {' '}and{' '}
+            <Text style={[styles.termsLink, { color: theme.primary }]}>Terms of Service</Text> and{' '}
             <Text style={[styles.termsLink, { color: theme.primary }]}>Privacy Policy</Text>
           </Text>
         </View>
@@ -314,7 +318,8 @@ const styles = StyleSheet.create({
   },
   termsLink: {
     fontWeight: 'bold',
-  }
+  },
 });
 
 export default SignupScreen;
+  

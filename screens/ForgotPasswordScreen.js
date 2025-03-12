@@ -138,7 +138,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
                 Remember your password?
               </Text>
               <TouchableOpacity onPress={() => navigation.goBack()}>
-                <Text style={[styles.signupLink, { color: theme.primary }]}> Login</Text>
+                <Text style={[styles.signupLink, { color: theme.primary }]}> Log In</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -157,7 +157,7 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   contentWrapper: {
-    width: '100%', // Ensures content spans full width within the centered ScrollView
+    width: '100%', 
   },
   headerContainer: {
     alignItems: 'center',
