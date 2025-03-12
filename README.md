@@ -61,6 +61,15 @@ Here are some screenshots of the app:
        style="border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
   <img src="assets/images/apps/HomeScreen.png" width="300"
        style="border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
+
+ <img src="assets/images/apps/SettingsScreens.png" width="300"
+       style="border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
+  <img src="assets/images/apps/AccountScreen.png" width="300"
+       style="border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />    
+  <img src="assets/images/apps/DeveloperSection.png" width="300"
+       style="border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
+
+
 </div>
 
 *From left to right: Splash Screen, Login Screen, and Signup Screen.*

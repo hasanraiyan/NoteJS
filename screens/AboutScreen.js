@@ -69,7 +69,7 @@ const AboutScreen = ({ navigation }) => {
                 <View style={[styles.divider, { backgroundColor: isDarkMode ? '#333333' : '#E5E7EB' }]} />
 
                 {/* Links */}
-                <View style={styles.linksSection}>
+                <View>
                     <TouchableOpacity style={[styles.linkItem, { backgroundColor: theme.secondaryBackground }]} onPress={openGithub}>
                         <Ionicons name="logo-github" size={24} color={theme.primary} />
                         <Text style={[styles.linkText, { color: theme.textColor }]}>GitHub Repository</Text>
@@ -80,7 +80,7 @@ const AboutScreen = ({ navigation }) => {
                 <View style={[styles.divider, { backgroundColor: isDarkMode ? '#333333' : '#E5E7EB' }]} />
 
                 {/* Developer Info */}
-                <View style={styles.developerSection}>
+                <View >
                     <Text style={[styles.sectionTitle, { color: theme.textColor }]}>Developer</Text>
                     <View style={[styles.developerInfo, { backgroundColor: theme.secondaryBackground }]}>
                         <Image
@@ -183,24 +183,17 @@ const styles = StyleSheet.create({
         height: 1,
         marginVertical: 24,
     },
-    linksSection: {
-        marginBottom: 8,
-    },
     linkItem: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingVertical: 12,
         paddingHorizontal: 16,
         borderRadius: 12,
-        marginBottom: 12,
     },
     linkText: {
         flex: 1,
         fontSize: 16,
         marginLeft: 12,
-    },
-    developerSection: {
-        marginBottom: 24,
     },
     sectionTitle: {
         fontSize: 18,
