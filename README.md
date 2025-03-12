@@ -53,11 +53,15 @@ NoteJS/
 
 Here are some screenshots of the app:
 
-<div style="display: flex; justify-content: space-around;">
-  <img src="assets/images/apps/SplashScreen.png" width="300" />
-  <img src="assets/images/apps/LoginScreen.png" width="300" />
-  <img src="assets/images/apps/SignUpScreen.png" width="300" />
-  <img src="assets/images/apps/ForgetPasswordScreen.png" width="300" />
+<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 20px; border: 2px solid #ccc;">
+  <img src="assets/images/apps/SplashScreen.png" width="300" 
+       style="border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
+  <img src="assets/images/apps/LoginScreen.png" width="300" 
+       style="border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
+  <img src="assets/images/apps/SignUpScreen.png" width="300" 
+       style="border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
+  <img src="assets/images/apps/ForgetPasswordScreen.png" width="300" 
+       style="border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);" />
 </div>
 
 *Splash Screen showing the list of notes.*  
