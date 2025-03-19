@@ -7,8 +7,9 @@ NoteJS is a basic notes application built with React Native and Expo. It allows 
 
 *   **Authentication:** Simple authentication flow with login and signup screens. Uses a dummy token for demonstration purposes
 
-  ``` Username: user
-      Password: password
+  ```
+ Username: user
+ Password: password
 ```
 *   **Note Creation:** Create new notes with a title and content.
 *   **Note Editing:** Edit existing notes.
